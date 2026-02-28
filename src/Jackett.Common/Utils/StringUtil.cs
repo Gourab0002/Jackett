@@ -52,53 +52,18 @@ namespace Jackett.Common.Utils
         public static string HexStringFromBytes(byte[] bytes) =>
             string.Join("", bytes.Select(b => b.ToString("X2")));
 
-        /// <summary>
-        /// Compute hash for string encoded as UTF8
-        /// </summary>
-        /// <param name="s">String to be hashed</param>
-        /// <returns>40-character hex string</returns>
-        public static string HashSHA1(string s)
-        {
-            var sha1 = SHA1.Create();
-
-            var bytes = Encoding.UTF8.GetBytes(s);
-            var hashBytes = sha1.ComputeHash(bytes);
-
-            return HexStringFromBytes(hashBytes);
-        }
-
         public static string Hash(string s)
         {
             // Use input string to calculate MD5 hash
-            var md5 = System.Security.Cryptography.MD5.Create();
+            using var md5 = MD5.Create();
 
-            var inputBytes = System.Text.Encoding.ASCII.GetBytes(s);
+            var inputBytes = Encoding.ASCII.GetBytes(s);
             var hashBytes = md5.ComputeHash(inputBytes);
 
             return HexStringFromBytes(hashBytes);
         }
 
-        // Is never used
-        // remove in favor of Exception.ToString() ?
-        public static string GetExceptionDetails(this Exception exception)
-        {
-            var properties = exception.GetType()
-                                    .GetProperties();
-            var fields = properties
-                             .Select(property => new
-                             {
-                                 Name = property.Name,
-                                 Value = property.GetValue(exception, null)
-                             })
-                             .Select(x => string.Format(
-                                 "{0} = {1}",
-                                 x.Name,
-                                 x.Value != null ? x.Value.ToString() : string.Empty
-                             ));
-            return string.Join("\n", fields);
-        }
-
-        private static char[] MakeValidFileName_invalids;
+        private static readonly char[] MakeValidFileName_invalids = Path.GetInvalidFileNameChars();
 
         /// <summary>Replaces characters in <c>text</c> that are not allowed in
         /// file names with the specified replacement character.</summary>
@@ -109,7 +74,7 @@ namespace Jackett.Common.Utils
         public static string MakeValidFileName(string text, char? replacement = '_', bool fancy = true)
         {
             var sb = new StringBuilder(text.Length);
-            var invalids = MakeValidFileName_invalids ?? (MakeValidFileName_invalids = Path.GetInvalidFileNameChars());
+            var invalids = MakeValidFileName_invalids;
             var changed = false;
             for (var i = 0; i < text.Length; i++)
             {
