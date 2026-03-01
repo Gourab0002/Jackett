@@ -201,3 +201,8 @@ launchSettings.json
 
 # JetBrains Rider
 /src/.run
+
+# Cloudflare Worker
+worker/node_modules/
+worker/dist/
+worker/.wrangler/
