@@ -9,6 +9,8 @@ interface CacheEntry {
   expiresAt: number;
 }
 
+const MAX_CACHE_ENTRIES = 1000;
+
 /** Default TTL of 300s (5 min) balances freshness with reducing upstream requests. */
 export function createInMemoryCacheService(): CacheService {
   const store = new Map<string, CacheEntry>();
@@ -24,6 +26,14 @@ export function createInMemoryCacheService(): CacheService {
       return entry.value as T;
     },
     async set<T>(key: string, value: T, ttlSeconds: number = 300): Promise<void> {
+      // Updating an existing key never increases the map size, so no eviction needed.
+      if (!store.has(key) && store.size >= MAX_CACHE_ENTRIES) {
+        // Evict the oldest entry (Map preserves insertion order) to keep memory bounded.
+        const oldestKey = store.keys().next().value;
+        if (oldestKey !== undefined) {
+          store.delete(oldestKey);
+        }
+      }
       store.set(key, { value, expiresAt: Date.now() + ttlSeconds * 1000 });
     },
     async delete(key: string): Promise<void> {
