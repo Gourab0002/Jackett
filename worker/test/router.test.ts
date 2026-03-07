@@ -6,8 +6,6 @@ import { ExampleIndexer } from '../src/indexers/example-indexer.js';
 function createMockEnv(apiKey = ''): Env {
   return {
     API_KEY: apiKey,
-    CONFIG_STORE: {} as KVNamespace,
-    CACHE_STORE: {} as KVNamespace,
   };
 }
 
@@ -139,7 +137,7 @@ describe('Router', () => {
       const res = await router.handleRequest(req, env);
       expect(res.status).toBe(200);
       const body = await res.json() as { runtime: string; app_version: string };
-      expect(body.runtime).toBe('cloudflare-workers');
+      expect(body.runtime).toBe('nodejs');
       expect(body.app_version).toBe('1.0.0');
     });
 
