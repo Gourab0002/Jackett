@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI / GitHub
+.github
+
+# C# source (not needed for Node worker)
+src/
+
+# Root-level config/scripts not needed in image
+*.md
+*.yml
+*.yaml
+*.bat
+*.sh
+*.iss
+*.config
+Installer.iss
+Upstart.config
+azure-pipelines.yml
+yamllint.yml
+jackett_launcher.*
+install_service*
+uninstall_*
+package.json
+
+# Worker build artifacts and dev dependencies (excluded from COPY; dist/ is built inside the container)
+worker/node_modules/
+worker/dist/
+worker/.wrangler/
+worker/test/
+worker/vitest.config.ts
