@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy package files and install all dependencies (including devDependencies)
 COPY worker/package.json worker/package-lock.json ./worker/
-RUN cd worker && npm ci
+RUN cd worker && npm ci --include=dev
 
 # Copy source and TypeScript config, then compile
 COPY worker/src ./worker/src
