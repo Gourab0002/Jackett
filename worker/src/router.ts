@@ -1,3 +1,4 @@
+import { timingSafeEqual as cryptoTimingSafeEqual } from 'node:crypto';
 import { IndexerManager } from './indexers/indexer-manager.js';
 import { resultPageToXml, createErrorXml } from './models/result-page.js';
 import { createChannelInfo } from './models/channel-info.js';
@@ -7,20 +8,15 @@ import { getFullImdbId } from './utils/parse-util.js';
 
 /** Constant-time string comparison to prevent timing attacks on API key validation. */
 function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    // Compare against self to keep constant time even on length mismatch
-    const dummy = new TextEncoder().encode(a);
-    crypto.subtle.timingSafeEqual(dummy, dummy);
-    return false;
-  }
   const enc = new TextEncoder();
-  return crypto.subtle.timingSafeEqual(enc.encode(a), enc.encode(b));
+  const bufA = enc.encode(a);
+  const bufB = enc.encode(b);
+  if (bufA.length !== bufB.length) return false;
+  return cryptoTimingSafeEqual(bufA, bufB);
 }
 
 export interface Env {
   API_KEY: string;
-  CONFIG_STORE: KVNamespace;
-  CACHE_STORE: KVNamespace;
 }
 
 export class Router {
@@ -151,7 +147,7 @@ export class Router {
     return Response.json({
       api_key: env.API_KEY ? '***' : '',
       app_version: '1.0.0',
-      runtime: 'cloudflare-workers',
+      runtime: 'nodejs',
     });
   }
 

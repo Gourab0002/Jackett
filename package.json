@@ -1,0 +1,12 @@
+{
+  "name": "indexer-search",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "cd worker && npm ci && npm run build",
+    "start": "node worker/dist/server.js"
+  }
+}
